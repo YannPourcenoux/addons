@@ -19,7 +19,7 @@ import pytest
 import tensorflow as tf
 
 from tensorflow_addons.utils import test_utils
-from tensorflow_addons.optimizers import weight_decay_optimizers
+from tensorflow_addons.optimizers import weight_decay_optimizers, yogi
 
 WEIGHT_DECAY = 0.01
 
@@ -277,6 +277,18 @@ def test_keras_fit():
     model = tf.keras.models.Sequential([tf.keras.layers.Dense(2)])
     loss = tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True)
     optimizer = weight_decay_optimizers.AdamW(learning_rate=1e-4, weight_decay=1e-4)
+    model.compile(optimizer=optimizer, loss=loss, metrics=["accuracy"])
+    x, y = np.random.uniform(size=(2, 4, 1))
+    model.fit(x, y, epochs=1)
+
+
+def test_keras_fit_yogiw():
+    """Check if calling model.fit works for Yogi with decoupled weight decay."""
+    model = tf.keras.models.Sequential([tf.keras.layers.Dense(2)])
+    loss = tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True)
+    optimizer = weight_decay_optimizers.extend_with_decoupled_weight_decay(yogi.Yogi)(
+        learning_rate=1e-4, weight_decay=1e-4
+    )
     model.compile(optimizer=optimizer, loss=loss, metrics=["accuracy"])
     x, y = np.random.uniform(size=(2, 4, 1))
     model.fit(x, y, epochs=1)

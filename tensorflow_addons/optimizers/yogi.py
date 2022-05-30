@@ -121,7 +121,7 @@ class Yogi(tf.keras.optimizers.Optimizer):
             if self._beta1 > 0.0:
                 self.add_slot(var, "m")
 
-    def _resource_apply_dense(self, grad, var):
+    def _resource_apply_dense(self, grad, var, apply_state=None):
         """See `tf.train.Optimizer._apply_dense()`."""
         var_dtype = var.dtype.base_dtype
         lr_t = self._decayed_lr(var_dtype)
